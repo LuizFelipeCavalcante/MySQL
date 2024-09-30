@@ -134,14 +134,14 @@ FOR EACH ROW
 BEGIN 
     DECLARE historico TEXT DEFAULT '';
 
-    -- Concatena as mudanças diretamente
+
     SET historico = CONCAT(historico,
         IF(OLD.nome != NEW.nome, CONCAT('nome alterado de ', OLD.nome, ' para ', NEW.nome, '. '), ''),
         IF(OLD.descriacao != NEW.descriacao, CONCAT('descrição alterada de ', OLD.descriacao, ' para ', NEW.descriacao, '. '), ''),
         IF(OLD.qtde_estoque != NEW.qtde_estoque, CONCAT('quantidade em estoque alterada de ', OLD.qtde_estoque, ' para ', NEW.qtde_estoque, '. '), '')
     );
 
-    -- Insere o histórico apenas se houve mudanças
+
     IF historico != '' THEN
         INSERT INTO Auditoria (DataModificacao, nomeTabela, historico)
         VALUES (NOW(), 'Produto', historico);
@@ -153,20 +153,21 @@ END$
 
 CREATE TRIGGER TRG_ALTERAR_VENDEDOR AFTER UPDATE ON VENDEDOR
 FOR EACH ROW 
-BEGIN 
-	DECLARE historico TEXT DEFAULT '';
+BEGIN
+    DECLARE historico TEXT DEFAULT '';
 
-    -- Concatena as mudanças diretamente
+
     SET historico = CONCAT(historico,
         IF(OLD.nome != NEW.nome, CONCAT('nome alterado de ', OLD.nome, ' para ', NEW.nome, '. '), ''),
-        IF(OLD.descriacao != NEW.descriacao, CONCAT('descrição alterada de ', OLD.descriacao, ' para ', NEW.descriacao, '. '), ''),
-        IF(OLD.qtde_estoque != NEW.qtde_estoque, CONCAT('quantidade em estoque alterada de ', OLD.qtde_estoque, ' para ', NEW.qtde_estoque, '. '), '')
+        IF(OLD.funcao != NEW.funcao, CONCAT('função alterada de ', OLD.funcao, ' para ', NEW.funcao, '. '), ''),
+        IF(OLD.cidade != NEW.cidade, CONCAT('cidade alterada de ', OLD.cidade, ' para ', NEW.cidade, '. '), ''),
+        IF(OLD.CodigoFuncao != NEW.CodigoFuncao, CONCAT('CódigoFuncao alterado de ', OLD.CodigoFuncao, ' para ', NEW.CodigoFuncao, '. '), '')
     );
 
-    -- Insere o histórico apenas se houve mudanças
+
     IF historico != '' THEN
         INSERT INTO Auditoria (DataModificacao, nomeTabela, historico)
-        VALUES (NOW(), 'Produto', historico);
+        VALUES (NOW(), 'Vendedor', historico);
     END IF;
 END$
 
@@ -178,12 +179,12 @@ FOR EACH ROW
 BEGIN
     DECLARE historico TEXT DEFAULT '';
 
-    -- Concatena as mudanças diretamente
+
     SET historico = CONCAT(historico,
         IF(OLD.dataPedido != NEW.dataPedido, CONCAT('dataPedido alterado de ', OLD.dataPedido, ' para ', NEW.dataPedido, '. '), '')
     );
 
-    -- Insere o histórico apenas se houve mudanças
+
     IF historico != '' THEN
         INSERT INTO Auditoria (DataModificacao, nomeTabela, historico)
         VALUES (NOW(), 'Pedido', historico);
@@ -198,14 +199,14 @@ FOR EACH ROW
 BEGIN
     DECLARE historico TEXT DEFAULT '';
 
-    -- Concatena as mudanças diretamente
+
     SET historico = CONCAT(historico,
         IF(OLD.nome != NEW.nome, CONCAT('nome alterado de ', OLD.nome, ' para ', NEW.nome, '. '), ''),
         IF(OLD.email != NEW.email, CONCAT('email alterado de ', OLD.email, ' para ', NEW.email, '. '), ''),
         IF(OLD.cpf != NEW.cpf, CONCAT('cpf alterado de ', OLD.cpf, ' para ', NEW.cpf, '. '), '')
     );
 
-    -- Insere o histórico apenas se houve mudanças
+
     IF historico != '' THEN
         INSERT INTO Auditoria (DataModificacao, nomeTabela, historico)
         VALUES (NOW(), 'Cliente', historico);
@@ -213,20 +214,20 @@ BEGIN
 END$
 
 
--- Alterar cliente 
+-- Alterar itempedido 
 
 CREATE TRIGGER TRG_ALTERAR_ITEMPEDIDO AFTER UPDATE ON ITEMPEDIDO
 FOR EACH ROW
 BEGIN
     DECLARE historico TEXT DEFAULT '';
 
-    -- Concatena as mudanças diretamente
+
     SET historico = CONCAT(historico,
         IF(OLD.PrecoVenda != NEW.PrecoVenda, CONCAT('PrecoVenda alterado de ', OLD.PrecoVenda, ' para ', NEW.PrecoVenda, '. '), ''),
         IF(OLD.Qtde != NEW.Qtde, CONCAT('Qtde alterada de ', OLD.Qtde, ' para ', NEW.Qtde, '. '), '')
     );
 
-    -- Insere o histórico apenas se houve mudanças
+
     IF historico != '' THEN
         INSERT INTO Auditoria (DataModificacao, nomeTabela, historico)
         VALUES (NOW(), 'ItemPedido', historico);
@@ -305,14 +306,14 @@ CREATE PROCEDURE INSERIR_CLIENTE (
 BEGIN
     DECLARE cliente_existe INT;
 
-    -- Verificar se o cliente já existe
+
     SELECT COUNT(*) INTO cliente_existe
     FROM Cliente
     WHERE CodigoCliente = p_CodigoCliente;
 
-    -- Se não existir, insere
+
     IF cliente_existe = 0 THEN
-        -- Validação do CPF (apenas um exemplo de validação)
+
         IF LENGTH(p_CPFCliente) = 11 THEN
             INSERT INTO Cliente (CodigoCliente, nome, email, cpf)
             VALUES (p_CodigoCliente, p_NomeCliente, p_EmailCliente, p_CPFCliente);
@@ -338,14 +339,14 @@ CREATE PROCEDURE INSERIR_VENDEDOR (
 BEGIN
     DECLARE vendedor_existe INT;
 
-    -- Verificar se o vendedor já existe
+
     SELECT COUNT(*) INTO vendedor_existe
     FROM Vendedor
     WHERE CodigoVendedor = p_CodigoVendedor;
 
-    -- Se não existir, insere
+
     IF vendedor_existe = 0 THEN
-        -- Validação da função
+
         IF p_CodigoFuncao IS NOT NULL THEN
             INSERT INTO Vendedor (CodigoVendedor, nome, funcao, cidade, CodigoFuncao)
             VALUES (p_CodigoVendedor, p_NomeVendedor, p_FuncaoVendedor, p_CidadeVendedor, p_CodigoFuncao);
@@ -368,12 +369,10 @@ CREATE PROCEDURE INSERIR_FUNCAO (
 BEGIN
     DECLARE funcao_existe INT;
 
-    -- Verificar se a função já existe
     SELECT COUNT(*) INTO funcao_existe
     FROM Funcao
     WHERE CodigoFuncao = p_CodigoFuncao;
 
-    -- Se não existir, insere
     IF funcao_existe = 0 THEN
         INSERT INTO Funcao (CodigoFuncao, nome)
         VALUES (p_CodigoFuncao, p_NomeFuncao);
@@ -393,12 +392,10 @@ CREATE PROCEDURE INSERIR_STATUS (
 BEGIN
     DECLARE status_existe INT;
 
-    -- Verificar se o status já existe
     SELECT COUNT(*) INTO status_existe
     FROM Status
     WHERE CodigoStatus = p_CodigoStatus;
 
-    -- Se não existir, insere
     IF status_existe = 0 THEN
         INSERT INTO Status (CodigoStatus, descricao)
         VALUES (p_CodigoStatus, p_DescricaoStatus);
@@ -408,6 +405,7 @@ BEGIN
     END IF;
 END$$
 DELIMITER ;
+
 
 
 
@@ -425,6 +423,7 @@ BEGIN
     DECLARE CODIGOPRODUTO INT DEFAULT 0;
     DECLARE QUANTIDADEPRODUTO INT DEFAULT 0;
     DECLARE PRECO DECIMAL(10,2) DEFAULT 0.00;
+    DECLARE DONE INT DEFAULT 0;
 
     DECLARE CURSOR_LISTA_PRODUTO CURSOR FOR
         SELECT cp.CodigoProduto, p.qtde_estoque, cp.Qtde 
@@ -432,82 +431,81 @@ BEGIN
         JOIN Produto p ON cp.CodigoProduto = p.CodigoProduto
         WHERE cp.CodigoCarrinho = (SELECT CodigoCarrinho FROM Carrinho WHERE CodigoCliente = PARAM_CODIGOCLIENTE);
 
-    DECLARE CONTINUE_LOOP INT DEFAULT 1;
-    
-    -- Variável para controle do cursor
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET CONTINUE_LOOP = 0;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET DONE = 1;
 
-    -- Abrir transação
     START TRANSACTION;
 
-    -- Validar cliente
     SELECT COUNT(*) INTO EXISTE FROM Cliente WHERE CodigoCliente = PARAM_CODIGOCLIENTE;
     IF EXISTE = 0 THEN
         SET var_RESULTADO = CONCAT('Cliente inválido: ', PARAM_CODIGOCLIENTE);
         ROLLBACK;
-        LEAVE PROCEDURE;
-    END IF;
-
-    -- Validar vendedor
-    SELECT COUNT(*) INTO EXISTE FROM Vendedor WHERE CodigoVendedor = PARAM_CODIGOVENDEDOR;
-    IF EXISTE = 0 THEN
-        SET var_RESULTADO = CONCAT('Vendedor inválido: ', PARAM_CODIGOVENDEDOR);
-        ROLLBACK;
-        LEAVE PROCEDURE;
-    END IF;
-
-    -- Validar carrinho
-    SELECT COUNT(*) INTO EXISTE FROM Carrinho WHERE CodigoCliente = PARAM_CODIGOCLIENTE;
-    IF EXISTE = 0 THEN
-        SET var_RESULTADO = CONCAT('O cliente ', PARAM_CODIGOCLIENTE, ' não tem produtos no carrinho.');
-        ROLLBACK;
-        LEAVE PROCEDURE;
-    END IF;
-
-    -- Gerar novo número de pedido
-    SELECT IFNULL(MAX(CodigoPedido), 0) + 1 INTO VAR_NUMEROPEDIDO FROM Pedido;
-
-    -- Inserir pedido
-    INSERT INTO Pedido (CodigoPedido, dataPedido) 
-    VALUES (VAR_NUMEROPEDIDO, CURDATE());
-
-    -- Abrir cursor para processar os produtos do carrinho
-    OPEN CURSOR_LISTA_PRODUTO;
-
-    read_loop: LOOP
-        FETCH CURSOR_LISTA_PRODUTO INTO CODIGOPRODUTO, QUANTIDADEPRODUTO, PRECO;
-        
-        IF CONTINUE_LOOP = 0 THEN
-            LEAVE read_loop;
-        END IF;
-        
-        -- Verificar estoque
-        IF QUANTIDADEPRODUTO > PRECO THEN
-            SET var_RESULTADO = CONCAT('Estoque insuficiente para o produto: ', CODIGOPRODUTO);
+    ELSE
+        SELECT COUNT(*) INTO EXISTE FROM Vendedor WHERE CodigoVendedor = PARAM_CODIGOVENDEDOR;
+        IF EXISTE = 0 THEN
+            SET var_RESULTADO = CONCAT('Vendedor inválido: ', PARAM_CODIGOVENDEDOR);
             ROLLBACK;
-            LEAVE read_loop;
+        ELSE
+            SELECT COUNT(*) INTO EXISTE FROM Carrinho WHERE CodigoCliente = PARAM_CODIGOCLIENTE;
+            IF EXISTE = 0 THEN
+                SET var_RESULTADO = CONCAT('O cliente ', PARAM_CODIGOCLIENTE, ' não tem produtos no carrinho.');
+                ROLLBACK;
+            ELSE
+                SELECT IFNULL(MAX(CodigoPedido), 0) + 1 INTO VAR_NUMEROPEDIDO FROM Pedido;
+
+                INSERT INTO Pedido (CodigoPedido, dataPedido) 
+                VALUES (VAR_NUMEROPEDIDO, CURDATE());
+
+                OPEN CURSOR_LISTA_PRODUTO;
+
+                read_loop: LOOP
+                    FETCH CURSOR_LISTA_PRODUTO INTO CODIGOPRODUTO, QUANTIDADEPRODUTO, PRECO;
+
+                    IF DONE = 1 THEN
+                        LEAVE read_loop;
+                    END IF;
+
+                    IF QUANTIDADEPRODUTO > PRECO THEN
+                        SET var_RESULTADO = CONCAT('Estoque insuficiente para o produto: ', CODIGOPRODUTO);
+                        ROLLBACK;
+                        LEAVE read_loop;
+                    ELSE
+                        INSERT INTO ItemPedido (CodigoPedido, CodigoProduto, PrecoVenda, Qtde)
+                        VALUES (VAR_NUMEROPEDIDO, CODIGOPRODUTO, PRECO, QUANTIDADEPRODUTO);
+
+                        UPDATE Produto
+                        SET qtde_estoque = qtde_estoque - QUANTIDADEPRODUTO
+                        WHERE CodigoProduto = CODIGOPRODUTO;
+                    END IF;
+                END LOOP;
+
+                CLOSE CURSOR_LISTA_PRODUTO;
+
+                COMMIT;
+                SET var_RESULTADO = CONCAT('Pedido gerado com sucesso: ', VAR_NUMEROPEDIDO);
+            END IF;
         END IF;
-
-        -- Inserir item do pedido
-        INSERT INTO ItemPedido (CodigoPedido, CodigoProduto, PrecoVenda, Qtde)
-        VALUES (VAR_NUMEROPEDIDO, CODIGOPRODUTO, PRECO, QUANTIDADEPRODUTO);
-
-        -- Atualizar estoque
-        UPDATE Produto
-        SET qtde_estoque = qtde_estoque - QUANTIDADEPRODUTO
-        WHERE CodigoProduto = CODIGOPRODUTO;
-    END LOOP;
-    
-    -- Fechar cursor
-    CLOSE CURSOR_LISTA_PRODUTO;
-
-    -- Commit da transação
-    COMMIT;
-
-    SET var_RESULTADO = CONCAT('Pedido gerado com sucesso: ', VAR_NUMEROPEDIDO);
+    END IF;
 
 END$
 DELIMITER ;
+
+
+-- View de produtos mais vendidos
+
+CREATE VIEW ProdutosMaisVendidos AS
+SELECT 
+    p.CodigoProduto, 
+    p.Nome, 
+    SUM(i.Qtde) AS QuantidadeVendida
+FROM 
+    Produto p
+JOIN 
+    ItemPedido i ON p.CodigoProduto = i.CodigoProduto
+GROUP BY 
+    p.CodigoProduto, p.Nome
+ORDER BY 
+    QuantidadeVendida DESC;
+
 
 
 
